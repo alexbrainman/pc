@@ -12,6 +12,8 @@ import (
 	"unsafe"
 )
 
+//go:generate go run mksyscall_windows.go -output zapi.go pc.go
+
 // Performance query.
 type Query struct {
 	Handle PDH_HQUERY
@@ -19,9 +21,9 @@ type Query struct {
 
 type PDH_HQUERY syscall.Handle
 
-//sys	PdhOpenQuery(datasrc *uint16, userdata uint32, query *PDH_HQUERY) (pdherr error) = PdhOpenQueryW
-//sys	PdhCloseQuery(query PDH_HQUERY) (pdherr error) = PdhCloseQuery
-//sys	PdhCollectQueryData(query PDH_HQUERY) (pdherr error) = PdhCollectQueryData
+//sys	PdhOpenQuery(datasrc *uint16, userdata uint32, query *PDH_HQUERY) (pdherr error) = pdh.PdhOpenQueryW
+//sys	PdhCloseQuery(query PDH_HQUERY) (pdherr error) = pdh.PdhCloseQuery
+//sys	PdhCollectQueryData(query PDH_HQUERY) (pdherr error) = pdh.PdhCollectQueryData
 
 func toptr(s string) *uint16 {
 	if len(s) == 0 {
@@ -100,11 +102,11 @@ func (i *PDH_FMT_COUNTERVALUE_ITEM) NameString() string {
 	return syscall.UTF16ToString((*[20]uint16)(unsafe.Pointer(i.Name))[:])
 }
 
-//sys	PdhAddCounter(query PDH_HQUERY, fullpath *uint16, userdata uint32, counter *PDH_HCOUNTER) (pdherr error) = PdhAddCounterW
-//sys	PdhRemoveCounter(counter PDH_HCOUNTER) (pdherr error) = PdhRemoveCounter
-//sys	PdhGetRawCounterValue(counter PDH_HCOUNTER, ctype *uint32, value *PDH_RAW_COUNTER) (pdherr error) = PdhGetRawCounterValue
-//sys	PdhGetFormattedCounterValue(counter PDH_HCOUNTER, format uint32, ctype *uint32, value *PDH_FMT_COUNTERVALUE) (pdherr error) = PdhGetFormattedCounterValue
-//sys	PdhGetFormattedCounterArray(counter PDH_HCOUNTER, format uint32, bufsize *uint32, bufcnt *uint32, item *PDH_FMT_COUNTERVALUE_ITEM) (pdherr error) = PdhGetFormattedCounterArrayW
+//sys	PdhAddCounter(query PDH_HQUERY, fullpath *uint16, userdata uint32, counter *PDH_HCOUNTER) (pdherr error) = pdh.PdhAddCounterW
+//sys	PdhRemoveCounter(counter PDH_HCOUNTER) (pdherr error) = pdh.PdhRemoveCounter
+//sys	PdhGetRawCounterValue(counter PDH_HCOUNTER, ctype *uint32, value *PDH_RAW_COUNTER) (pdherr error) = pdh.PdhGetRawCounterValue
+//sys	PdhGetFormattedCounterValue(counter PDH_HCOUNTER, format uint32, ctype *uint32, value *PDH_FMT_COUNTERVALUE) (pdherr error) = pdh.PdhGetFormattedCounterValue
+//sys	PdhGetFormattedCounterArray(counter PDH_HCOUNTER, format uint32, bufsize *uint32, bufcnt *uint32, item *PDH_FMT_COUNTERVALUE_ITEM) (pdherr error) = pdh.PdhGetFormattedCounterArrayW
 
 // AddCounter adds the specified counter to the query q.
 func (q *Query) AddCounter(fullpath string, userdata uint32) (*Counter, error) {
