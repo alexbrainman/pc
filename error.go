@@ -5,8 +5,9 @@
 package pc
 
 import (
-	"syscall"
 	"unicode/utf16"
+
+	"golang.org/x/sys/windows"
 )
 
 const (
@@ -34,12 +35,12 @@ func itoa(val int) string { // do it here rather than with fmt to avoid dependen
 }
 
 func (e Errno) Error() string {
-	var flags uint32 = syscall.FORMAT_MESSAGE_FROM_HMODULE | syscall.FORMAT_MESSAGE_ARGUMENT_ARRAY | syscall.FORMAT_MESSAGE_IGNORE_INSERTS
+	var flags uint32 = windows.FORMAT_MESSAGE_FROM_HMODULE | windows.FORMAT_MESSAGE_ARGUMENT_ARRAY | windows.FORMAT_MESSAGE_IGNORE_INSERTS
 	b := make([]uint16, 300)
-	h := uint32(modpdh.Handle())
-	n, err := syscall.FormatMessage(flags, h, uint32(e), langid(syscall.LANG_ENGLISH, syscall.SUBLANG_ENGLISH_US), b, nil)
+	h := uintptr(modpdh.Handle())
+	n, err := windows.FormatMessage(flags, h, uint32(e), langid(windows.LANG_ENGLISH, windows.SUBLANG_ENGLISH_US), b, nil)
 	if err != nil {
-		n, err = syscall.FormatMessage(flags, h, uint32(e), 0, b, nil)
+		n, err = windows.FormatMessage(flags, h, uint32(e), 0, b, nil)
 		if err != nil {
 			return "pdh error #" + itoa(int(e))
 		}

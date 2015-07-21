@@ -116,3 +116,14 @@ func TestMemory(t *testing.T) {
 		printFmtArray(t, c, format)
 	}
 }
+
+func TestErrorString(t *testing.T) {
+	q, err := OpenQuery("no_such_source", 0)
+	if err == nil {
+		q.Close()
+		t.Fatal("OpenQuery succeeded, but expected to fail.")
+	}
+	if err.Error() != "Unable to find the specified file." {
+		t.Fatalf("'Unable to find the specified file.' error message expected, but %q found.", err.Error())
+	}
+}
